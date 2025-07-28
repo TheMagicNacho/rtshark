@@ -16,8 +16,11 @@ exclude = ["/.github"]
 
 [dependencies]
 chrono = { version = "0.4", default-features = false }
-quick-xml = "0.37"
+quick-xml = { version = "0.37", features = ["tokio", "async-tokio"] }
 semver = "1"
+tokio = { version = "1.45", features = ["rt", "rt-multi-thread", "macros", "time", "sync"] }
+tokio-stream = "0.1.17"
+futures = "0.3"
 
 [dev-dependencies]
 libc = "0.2"

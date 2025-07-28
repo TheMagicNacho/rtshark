@@ -1145,6 +1145,33 @@ impl RTShark {
         msg
     }
 
+    pub async fn stream(&mut self) -> impl tokio_stream::Stream<Item = String> + '_ {
+        futures::prelude::stream::unfold(self, |rtshark| async move {
+            match rtshark.read() {
+                Ok(Some(packet)) => Some((format!("{packet:?}"), rtshark)),
+                Ok(None) => None, // EOF
+                Err(e) => {
+                    eprintln!("Error reading packet: {e}");
+                    None
+                }
+            }
+        })
+        // // let (tx, rx) = futures::channel::mpsc::unbounded::<String>();
+        // let (tx, rx) = tokio::sync::mpsc::channel(100);
+        //
+        // tokio::task::spawn(async move {
+        //     // let messages = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"];
+        //     // for (index, message) in messages.into_iter().enumerate() {
+        //     //     let time_to_sleep = if index % 2 == 0 { 100 } else { 300 };
+        //     //     tokio::time::sleep(Duration::from_millis(time_to_sleep)).await;
+        //     //
+        //     //     tx.send(format!("Message: '{message}'")).await.unwrap();
+        //     // }
+        //
+        //     loop {}
+        // });
+        // ReceiverStream::new(rx)
+    }
     /// Kill the running TShark process associated to this rtshark instance.
     /// Once TShark is killed, there is no way to start it again using this object.
     /// Any new TShark instance has to be created using RTSharkBuilder.
